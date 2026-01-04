@@ -139,5 +139,3 @@ if text:
     result = hangul_to_tengwar(text)
     st.subheader("퀘냐 텡과르 표기")
     st.markdown(f"<div class='tengwar'>{result}</div>", unsafe_allow_html=True)
-
-add quenya tengwar translator
