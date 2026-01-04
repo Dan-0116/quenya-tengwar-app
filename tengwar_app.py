@@ -154,3 +154,10 @@ if text:
     result = hangul_to_tengwar(text)
     st.subheader("퀘냐 텡과르 표기")
     st.markdown(f"<div class='tengwar'>{result}</div>", unsafe_allow_html=True)
+
+st.subheader("폰트 테스트")
+st.markdown(
+    "<div class='tengwar'>abcdefghijklmnopqrstuvwxyz</div>",
+    unsafe_allow_html=True
+)
+
