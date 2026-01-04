@@ -31,121 +31,90 @@ def decompose(char):
     )
 
 # =========================================================
-# 2. 자음 → 텡과르 매핑
+# 2. 퀘냐식 자음 → Annatar 키보드 매핑
 # =========================================================
 
-CONSONANT_FEATURE_MAP = {
-    "ㄱ": ("CALMA", 1), "ㄲ": ("CALMA", 1), "ㅋ": ("CALMA", 1),
-    "ㄴ": ("TINCO", 5),
-    "ㄷ": ("TINCO", 1), "ㅌ": ("TINCO", 1),
-    "ㄹ": ("TINCO", 6),
-    "ㅁ": ("PARMA", 5),
-    "ㅂ": ("PARMA", 1), "ㅍ": ("PARMA", 1),
-    "ㅅ": ("TINCO", 3),
-    "ㅇ": ("CALMA", 5),
-    "ㅎ": ("CALMA", 3),
-    "ㅈ": ("TINCO", 2),
-    "ㅊ": ("TINCO", 1)
-}
-
-TENGWAR_GLYPH = {
-    ("TINCO", 1): "\ue000",
-    ("TINCO", 2): "\ue001",
-    ("TINCO", 3): "\ue002",
-    ("TINCO", 5): "\ue004",
-    ("TINCO", 6): "\ue005",
-
-    ("PARMA", 1): "\ue010",
-    ("PARMA", 5): "\ue014",
-
-    ("CALMA", 1): "\ue020",
-    ("CALMA", 3): "\ue022",
-    ("CALMA", 5): "\ue024"
+TENGWAR_CONSONANT = {
+    "ㄱ": "k", "ㄲ": "k", "ㅋ": "k",
+    "ㄴ": "n",
+    "ㄷ": "t", "ㅌ": "t",
+    "ㄹ": "r",
+    "ㅁ": "m",
+    "ㅂ": "p", "ㅍ": "p",
+    "ㅅ": "s",
+    "ㅇ": "g",
+    "ㅎ": "h",
+    "ㅈ": "j",
+    "ㅊ": "c"
 }
 
 # =========================================================
-# 3. 모음 테흐타
+# 3. 모음 (Annatar 키보드 입력)
 # =========================================================
 
-VOWEL_TEHTA = {
-    "ㅏ": "\ue040",
-    "ㅓ": "\ue041",
-    "ㅣ": "\ue042",
-    "ㅗ": "\ue043",
-    "ㅜ": "\ue044",
-    "ㅡ": "\ue045"
+TENGWAR_VOWEL = {
+    "ㅏ": "a",
+    "ㅓ": "e",
+    "ㅣ": "i",
+    "ㅗ": "o",
+    "ㅜ": "u",
+    "ㅡ": "ë"
 }
 
 # =========================================================
-# 4. 변환 함수
+# 4. 변환 로직
 # =========================================================
 
 def hangul_to_tengwar(text):
-    output = ""
+    result = ""
     for ch in text:
         if ch == " ":
-            output += "   "
+            result += "   "
             continue
 
         cho, jung, jong = decompose(ch)
 
-        if cho in CONSONANT_FEATURE_MAP:
-            t, g = CONSONANT_FEATURE_MAP[cho]
-            output += TENGWAR_GLYPH.get((t, g), "")
+        if cho in TENGWAR_CONSONANT:
+            result += TENGWAR_CONSONANT[cho]
 
-        if jung in VOWEL_TEHTA:
-            output += VOWEL_TEHTA[jung]
+        if jung in TENGWAR_VOWEL:
+            result += TENGWAR_VOWEL[jung]
 
-        if jong in CONSONANT_FEATURE_MAP:
-            t, g = CONSONANT_FEATURE_MAP[jong]
-            output += TENGWAR_GLYPH.get((t, g), "")
+        if jong in TENGWAR_CONSONANT:
+            result += TENGWAR_CONSONANT[jong]
 
-        output += " "
+        result += " "
 
-    return output
+    return result
 
 # =========================================================
-# 5. Streamlit + Base64 폰트
+# 5. Streamlit UI
 # =========================================================
 
 st.set_page_config(page_title="한국어 → 퀘냐 텡과르 번역기")
 
-BASE64_FONT = """
-여기에_네가_만든_Base64_문자열_전체를
-다른_코드_없이
-그대로_붙여넣어라
-"""
-
-st.markdown(f"""
+st.markdown("""
 <style>
-@font-face {{
-    font-family: 'Tengwar';
-    src: url(data:font/ttf;base64,{BASE64_FONT}) format('truetype');
-}}
-.tengwar {{
-    font-family: 'Tengwar';
-    font-size: 40px;
+.tengwar {
+    font-family: 'Tengwar Annatar', 'Tengwar', serif;
+    font-size: 42px;
     line-height: 1.8;
-}}
+}
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# 6. UI
-# =========================================================
-
 st.title("한국어 → 퀘냐 텡과르 번역기")
-st.write("퀘냐 오마테흐타 · 실제 텡과르 문자 출력")
+st.write("Tengwar Annatar (키보드 매핑 방식) · 실제 문자 출력")
 
 text = st.text_input("한국어 문장을 입력하세요")
 
 if text:
-    result = hangul_to_tengwar(text)
-    st.subheader("퀘냐 텡과르 표기")
-    st.markdown(f"<div class='tengwar'>{result}</div>", unsafe_allow_html=True)
+    output = hangul_to_tengwar(text)
+    st.subheader("퀘냐식 텡과르 표기")
+    st.markdown(f"<div class='tengwar'>{output}</div>", unsafe_allow_html=True)
 
 st.subheader("폰트 테스트")
 st.markdown(
-    "<div class='tengwar'>abcdefghijklmnopqrstuvwxyz</div>",
+    "<div class='tengwar'>tengwar annatar test</div>",
     unsafe_allow_html=True
 )
