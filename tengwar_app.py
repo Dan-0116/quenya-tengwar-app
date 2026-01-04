@@ -1,24 +1,36 @@
 import streamlit as st
 
 # =========================================================
+# Streamlit 기본 설정 (반드시 최상단)
+# =========================================================
+
+st.set_page_config(page_title="한국어 → 퀘냐 텡과르 번역기")
+
+# =========================================================
+# 폰트 로딩 (CSS)
+# =========================================================
+
+st.markdown("""
+<style>
+@font-face {
+    font-family: 'Tengwar';
+    src: url('./TengwarAnnatar.ttf') format('truetype');
+}
+.tengwar {
+    font-family: 'Tengwar';
+    font-size: 40px;
+    line-height: 1.8;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =========================================================
 # 1. 한글 음절 분해
 # =========================================================
 
-CHOSUNG = [
-    "ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ",
-    "ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"
-]
-
-JUNGSUNG = [
-    "ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ",
-    "ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"
-]
-
-JONGSUNG = [
-    "","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ",
-    "ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ",
-    "ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"
-]
+CHOSUNG = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
+JUNGSUNG = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"]
+JONGSUNG = ["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]
 
 def decompose(char):
     if not "가" <= char <= "힣":
@@ -31,7 +43,7 @@ def decompose(char):
     )
 
 # =========================================================
-# 2. 조음 기반 자음 → (테마르, 텔레르)
+# 2. 자음 → 테마르 / 텔레르
 # =========================================================
 
 CONSONANT_FEATURE_MAP = {
@@ -49,27 +61,24 @@ CONSONANT_FEATURE_MAP = {
 }
 
 # =========================================================
-# 3. 텡과르 글리프 (Tengwar Annatar / PUA)
+# 3. 텡과르 글리프
 # =========================================================
 
 TENGWAR_GLYPH = {
-    ("TINCO", 1): "\ue000",  # tinco
-    ("TINCO", 2): "\ue001",  # ando
-    ("TINCO", 3): "\ue002",  # thule
-    ("TINCO", 4): "\ue003",
-    ("TINCO", 5): "\ue004",  # númen
-    ("TINCO", 6): "\ue005",  # rómen
-
-    ("PARMA", 1): "\ue010",  # parma
-    ("PARMA", 5): "\ue014",  # malta
-
-    ("CALMA", 1): "\ue020",  # calma
-    ("CALMA", 5): "\ue024",  # anga (ŋ)
-    ("CALMA", 3): "\ue022"   # harma / hyarmen 계열
+    ("TINCO", 1): "\ue000",
+    ("TINCO", 2): "\ue001",
+    ("TINCO", 3): "\ue002",
+    ("TINCO", 5): "\ue004",
+    ("TINCO", 6): "\ue005",
+    ("PARMA", 1): "\ue010",
+    ("PARMA", 5): "\ue014",
+    ("CALMA", 1): "\ue020",
+    ("CALMA", 3): "\ue022",
+    ("CALMA", 5): "\ue024"
 }
 
 # =========================================================
-# 4. 테흐타 (퀘냐 오마테흐타)
+# 4. 테흐타 (모음)
 # =========================================================
 
 VOWEL_TEHTA = {
@@ -87,7 +96,6 @@ VOWEL_TEHTA = {
 
 def hangul_to_tengwar(text):
     output = ""
-
     for ch in text:
         if ch == " ":
             output += "   "
@@ -107,53 +115,14 @@ def hangul_to_tengwar(text):
             output += TENGWAR_GLYPH.get((theme, grade), "")
 
         output += " "
-
     return output
 
 # =========================================================
-# 6. Streamlit UI + 폰트 로딩
+# 6. UI
 # =========================================================
 
-st.set_page_config(page_title="한국어 → 퀘냐 텡과르 번역기")
-import streamlit as st
-
-st.set_page_config(page_title="한국어 → 퀘냐 텡과르 번역기")
-
-# ⬇⬇⬇ 여기 바로 아래에 붙이세요 ⬇⬇⬇
-st.markdown("""
-<style>
-@font-face {
-    font-family: 'Tengwar';
-    src: url('./TengwarAnnatar.ttf') format('truetype');
-}
-.tengwar {
-    font-family: 'Tengwar';
-    font-size: 40px;
-    line-height: 1.8;
-}
-</style>
-""", unsafe_allow_html=True)
-# ⬆⬆⬆ 여기까지 ⬆⬆⬆
-
 st.title("한국어 → 퀘냐 텡과르 번역기")
-
-
-st.markdown("""
-<style>
-@font-face {
-    font-family: 'Tengwar';
-    src: url('TengwarAnnatar.ttf');
-}
-.tengwar {
-    font-family: 'Tengwar';
-    font-size: 40px;
-    line-height: 1.8;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.title("한국어 → 퀘냐 텡과르 번역기")
-st.write("퀘냐 모드 텡과르 · 오마테흐타 · 실제 문자 출력")
+st.write("퀘냐 오마테흐타 · 실제 텡과르 문자 출력")
 
 text = st.text_input("한국어 문장을 입력하세요")
 
