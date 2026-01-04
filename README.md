@@ -1,1 +1,1 @@
-# quenya-tengwar-app.py
+# quenya-tengwar-app/
