@@ -31,64 +31,85 @@ def decompose(char):
     )
 
 # =========================================================
-# 2. 퀘냐식 자음 → Annatar 키보드 매핑
+# 2. 자음 → 텡과르 계열 매핑 (Quenya 기준)
 # =========================================================
 
-TENGWAR_CONSONANT = {
-    "ㄱ": "k", "ㄲ": "k", "ㅋ": "k",
-    "ㄴ": "n",
-    "ㄷ": "t", "ㅌ": "t",
-    "ㄹ": "r",
-    "ㅁ": "m",
-    "ㅂ": "p", "ㅍ": "p",
-    "ㅅ": "s",
-    "ㅇ": "g",
-    "ㅎ": "h",
-    "ㅈ": "j",
-    "ㅊ": "c"
+CONSONANT_FEATURE_MAP = {
+    "ㄱ": ("CALMA", 1), "ㄲ": ("CALMA", 1), "ㅋ": ("CALMA", 1),
+    "ㄴ": ("TINCO", 5),
+    "ㄷ": ("TINCO", 1), "ㅌ": ("TINCO", 1),
+    "ㄹ": ("TINCO", 6),
+    "ㅁ": ("PARMA", 5),
+    "ㅂ": ("PARMA", 1), "ㅍ": ("PARMA", 1),
+    "ㅅ": ("TINCO", 3),
+    "ㅇ": ("CALMA", 5),
+    "ㅎ": ("CALMA", 3),
+    "ㅈ": ("TINCO", 2),
+    "ㅊ": ("TINCO", 1)
 }
 
 # =========================================================
-# 3. 모음 (Annatar 키보드 입력)
+# 3. 텡과르 글리프 (Tengwar Annatar PUA)
 # =========================================================
 
-TENGWAR_VOWEL = {
-    "ㅏ": "a",
-    "ㅓ": "e",
-    "ㅣ": "i",
-    "ㅗ": "o",
-    "ㅜ": "u",
-    "ㅡ": "ë"
+TENGWAR_GLYPH = {
+    ("TINCO", 1): "\ue000",
+    ("TINCO", 2): "\ue001",
+    ("TINCO", 3): "\ue002",
+    ("TINCO", 5): "\ue004",
+    ("TINCO", 6): "\ue005",
+
+    ("PARMA", 1): "\ue010",
+    ("PARMA", 5): "\ue014",
+
+    ("CALMA", 1): "\ue020",
+    ("CALMA", 3): "\ue022",
+    ("CALMA", 5): "\ue024"
 }
 
 # =========================================================
-# 4. 변환 로직
+# 4. 모음 → 오마테흐타 (Quenya)
+# =========================================================
+
+VOWEL_TEHTA = {
+    "ㅏ": "\ue040",
+    "ㅓ": "\ue041",
+    "ㅣ": "\ue042",
+    "ㅗ": "\ue043",
+    "ㅜ": "\ue044",
+    "ㅡ": "\ue045"
+}
+
+# =========================================================
+# 5. 변환 로직
 # =========================================================
 
 def hangul_to_tengwar(text):
-    result = ""
+    output = ""
     for ch in text:
         if ch == " ":
-            result += "   "
+            output += "   "
             continue
 
         cho, jung, jong = decompose(ch)
 
-        if cho in TENGWAR_CONSONANT:
-            result += TENGWAR_CONSONANT[cho]
+        if cho in CONSONANT_FEATURE_MAP:
+            t, g = CONSONANT_FEATURE_MAP[cho]
+            output += TENGWAR_GLYPH.get((t, g), "")
 
-        if jung in TENGWAR_VOWEL:
-            result += TENGWAR_VOWEL[jung]
+        if jung in VOWEL_TEHTA:
+            output += VOWEL_TEHTA[jung]
 
-        if jong in TENGWAR_CONSONANT:
-            result += TENGWAR_CONSONANT[jong]
+        if jong in CONSONANT_FEATURE_MAP:
+            t, g = CONSONANT_FEATURE_MAP[jong]
+            output += TENGWAR_GLYPH.get((t, g), "")
 
-        result += " "
+        output += " "
 
-    return result
+    return output
 
 # =========================================================
-# 5. Streamlit UI
+# 6. Streamlit UI + 폰트 강제 지정
 # =========================================================
 
 st.set_page_config(page_title="한국어 → 퀘냐 텡과르 번역기")
@@ -104,17 +125,17 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("한국어 → 퀘냐 텡과르 번역기")
-st.write("Tengwar Annatar (키보드 매핑 방식) · 실제 문자 출력")
+st.write("Quenya 모드 · Tengwar Annatar · 실제 문자 출력")
 
 text = st.text_input("한국어 문장을 입력하세요")
 
 if text:
-    output = hangul_to_tengwar(text)
-    st.subheader("퀘냐식 텡과르 표기")
-    st.markdown(f"<div class='tengwar'>{output}</div>", unsafe_allow_html=True)
+    result = hangul_to_tengwar(text)
+    st.subheader("퀘냐 텡과르 표기")
+    st.markdown(f"<div class='tengwar'>{result}</div>", unsafe_allow_html=True)
 
 st.subheader("폰트 테스트")
 st.markdown(
-    "<div class='tengwar'>tengwar annatar test</div>",
+    "<div class='tengwar'></div>",
     unsafe_allow_html=True
 )
