@@ -115,6 +115,28 @@ def hangul_to_tengwar(text):
 # =========================================================
 
 st.set_page_config(page_title="한국어 → 퀘냐 텡과르 번역기")
+import streamlit as st
+
+st.set_page_config(page_title="한국어 → 퀘냐 텡과르 번역기")
+
+# ⬇⬇⬇ 여기 바로 아래에 붙이세요 ⬇⬇⬇
+st.markdown("""
+<style>
+@font-face {
+    font-family: 'Tengwar';
+    src: url('./TengwarAnnatar.ttf') format('truetype');
+}
+.tengwar {
+    font-family: 'Tengwar';
+    font-size: 40px;
+    line-height: 1.8;
+}
+</style>
+""", unsafe_allow_html=True)
+# ⬆⬆⬆ 여기까지 ⬆⬆⬆
+
+st.title("한국어 → 퀘냐 텡과르 번역기")
+
 
 st.markdown("""
 <style>
